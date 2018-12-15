@@ -1,6 +1,7 @@
 module Main exposing (..)
 import Http
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (Decoder, int, string, float)
+import Json.Decode.Pipeline exposing (required, optional, hardcoded)
 import Browser
 import Html exposing (..)
 import Html.Events exposing (..)
@@ -14,16 +15,23 @@ randomCardUrl =
 ---- MODEL ----
 
 
--- type alias Card =
---     { name : String
---     , suit : String
---     , desc : String
---     }
+type alias Card =
+    { name       : String
+    , nameShort  : String
+    , value      : String
+    , valueInt   : Int
+    , suit       : String
+    , cardType   : String
+    , meaningUp  : String
+    , meaningRev : String
+    , desc       : String
+    }
 
 type alias Model =
     {
-        name : String
+        card : Card
     }
+
 
 
 init : ( Model, Cmd Msg )
@@ -31,15 +39,24 @@ init =
     ( Model [], Cmd.none )
 
 ---- REQUESTS/DECODERS ----
-cardDecoder : Decode.Decoder Model
-cardDecoder =
-    Decode.at ["cards"] Decode.string
+decodeCard : Decode.Decoder Card
+decodeCard =
+    Decode.succeed Card
+        |> required "name" string
+        |> required "name_short" string
+        |> required "value" string
+        |> required "value_int" int
+        |> required "suit" string
+        |> required "type" string
+        |> required "meaning_up" string
+        |> required "meaning_rev" string
+        |> required "desc" string
 
 ---- UPDATE ----
 -- temp url to use
 url : String
 url =
-    "http://localhost:5019/nicknames"
+    "http://localhost:3000/data"
 
 type Msg
     = RequestCard
@@ -52,11 +69,12 @@ update msg model =
            (model, Http.send DataRecieved (Http.getString url) )
 
         DataRecieved (Ok cardJson) ->
-            case Decode.decodeString cardDecoder cardJson of
+            case Decode.decodeString decodeCard cardJson of
                 Ok card ->
-                    ({model | names = card}, Cmd.none )
+                    (Model card, Cmd.none )
                 Err errorMsg ->
-                    (Model [], Cmd.none)
+                -- TODO: find a way to null out this model
+                    (Model , Cmd.none)
 
         DataRecieved(Err _) ->
             (model, Cmd.none)
