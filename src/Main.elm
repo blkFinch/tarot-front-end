@@ -28,15 +28,24 @@ type alias Card =
     }
 
 type alias Model =
-    {
-        card : Card
-    }
+    Card
 
+blankCard ={
+    name = ""
+    ,nameShort  = " "
+    , value      = " "
+    , valueInt   = 0
+    , suit       = " "
+    , cardType   = " "
+    , meaningUp  = " "
+    , meaningRev = " "
+    , desc       = " "}
 
 
 init : ( Model, Cmd Msg )
+
 init =
-    ( Model [], Cmd.none )
+    (blankCard, Cmd.none )
 
 ---- REQUESTS/DECODERS ----
 decodeCard : Decode.Decoder Card
@@ -71,10 +80,9 @@ update msg model =
         DataRecieved (Ok cardJson) ->
             case Decode.decodeString decodeCard cardJson of
                 Ok card ->
-                    (Model card, Cmd.none )
-                Err errorMsg ->
-                -- TODO: find a way to null out this model
-                    (Model , Cmd.none)
+                    (card, Cmd.none )
+                Err _->
+                    (model, Cmd.none )
 
         DataRecieved(Err _) ->
             (model, Cmd.none)
@@ -89,13 +97,10 @@ view model =
     div [class "container"][
       h1 [] [ text "Elm Tarot App" ]
       ,button [class "btn btn-primary", onClick RequestCard][ text "Draw a Card!"]
-      ,p[](List.map nameList model.names)
+      ,p[][text model.name]
+      ,p[][text model.desc]
+      ,p[][text model.meaningUp]
     ]
-
-nameList : String -> Html Msg
-nameList name =
-    p[][text name]
-
 
 
 ---- PROGRAM ----

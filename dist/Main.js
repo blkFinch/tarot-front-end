@@ -4492,9 +4492,7 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$Model = function (names) {
-	return {names: names};
-};
+var author$project$Main$blankCard = {cardType: ' ', desc: ' ', meaningRev: ' ', meaningUp: ' ', name: '', nameShort: ' ', suit: ' ', value: ' ', valueInt: 0};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
@@ -4972,16 +4970,65 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 	});
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var author$project$Main$init = _Utils_Tuple2(
-	author$project$Main$Model(_List_Nil),
-	elm$core$Platform$Cmd$none);
+var author$project$Main$init = _Utils_Tuple2(author$project$Main$blankCard, elm$core$Platform$Cmd$none);
 var author$project$Main$DataRecieved = function (a) {
 	return {$: 'DataRecieved', a: a};
 };
-var elm$json$Json$Decode$list = _Json_decodeList;
+var elm$json$Json$Decode$map2 = _Json_map2;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
+var elm$json$Json$Decode$field = _Json_decodeField;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$field, key, valDecoder),
+			decoder);
+	});
+var author$project$Main$Card = F9(
+	function (name, nameShort, value, valueInt, suit, cardType, meaningUp, meaningRev, desc) {
+		return {cardType: cardType, desc: desc, meaningRev: meaningRev, meaningUp: meaningUp, name: name, nameShort: nameShort, suit: suit, value: value, valueInt: valueInt};
+	});
+var elm$json$Json$Decode$int = _Json_decodeInt;
 var elm$json$Json$Decode$string = _Json_decodeString;
-var author$project$Main$cardDecoder = elm$json$Json$Decode$list(elm$json$Json$Decode$string);
-var author$project$Main$url = 'http://localhost:5019/nicknames';
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var author$project$Main$decodeCard = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'desc',
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'meaning_rev',
+		elm$json$Json$Decode$string,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'meaning_up',
+			elm$json$Json$Decode$string,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'type',
+				elm$json$Json$Decode$string,
+				A3(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'suit',
+					elm$json$Json$Decode$string,
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'value_int',
+						elm$json$Json$Decode$int,
+						A3(
+							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+							'value',
+							elm$json$Json$Decode$string,
+							A3(
+								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+								'name_short',
+								elm$json$Json$Decode$string,
+								A3(
+									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+									'name',
+									elm$json$Json$Decode$string,
+									elm$json$Json$Decode$succeed(author$project$Main$Card))))))))));
+var author$project$Main$url = 'http://localhost:3000/data';
 var elm$http$Http$Internal$EmptyBody = {$: 'EmptyBody'};
 var elm$http$Http$emptyBody = elm$http$Http$Internal$EmptyBody;
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
@@ -5745,19 +5792,12 @@ var author$project$Main$update = F2(
 		} else {
 			if (msg.a.$ === 'Ok') {
 				var cardJson = msg.a.a;
-				var _n1 = A2(elm$json$Json$Decode$decodeString, author$project$Main$cardDecoder, cardJson);
+				var _n1 = A2(elm$json$Json$Decode$decodeString, author$project$Main$decodeCard, cardJson);
 				if (_n1.$ === 'Ok') {
 					var card = _n1.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{names: card}),
-						elm$core$Platform$Cmd$none);
+					return _Utils_Tuple2(card, elm$core$Platform$Cmd$none);
 				} else {
-					var errorMsg = _n1.a;
-					return _Utils_Tuple2(
-						author$project$Main$Model(_List_Nil),
-						elm$core$Platform$Cmd$none);
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
 			} else {
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
@@ -5766,8 +5806,6 @@ var author$project$Main$update = F2(
 	});
 var author$project$Main$RequestCard = {$: 'RequestCard'};
 var elm$json$Json$Decode$map = _Json_map1;
-var elm$json$Json$Decode$map2 = _Json_map2;
-var elm$json$Json$Decode$succeed = _Json_succeed;
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
 		case 'Normal':
@@ -5780,21 +5818,12 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$html$Html$p = _VirtualDom_node('p');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var author$project$Main$nameList = function (name) {
-	return A2(
-		elm$html$Html$p,
-		_List_Nil,
-		_List_fromArray(
-			[
-				elm$html$Html$text(name)
-			]));
-};
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
+var elm$html$Html$p = _VirtualDom_node('p');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5851,7 +5880,24 @@ var author$project$Main$view = function (model) {
 				A2(
 				elm$html$Html$p,
 				_List_Nil,
-				A2(elm$core$List$map, author$project$Main$nameList, model.names))
+				_List_fromArray(
+					[
+						elm$html$Html$text(model.name)
+					])),
+				A2(
+				elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(model.desc)
+					])),
+				A2(
+				elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(model.meaningUp)
+					]))
 			]));
 };
 var elm$browser$Browser$External = function (a) {
