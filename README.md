@@ -15,3 +15,5 @@ then run  gulp to start the server
 ``` bash
 gulp
 ```
+
+Sometimes there is a long delay on the API call as the request is routed through https://cors-anywhere.herokuapp.com/
