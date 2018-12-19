@@ -7,7 +7,7 @@ This is a front end app that draws a card from https://github.com/ekelen/tarot-a
 First install using NPM
 
 ``` bash
-$npm install
+npm install
 ```
 
 then run  gulp to start the server
