@@ -4492,7 +4492,11 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$blankCard = {cardType: ' ', desc: ' ', meaningRev: ' ', meaningUp: ' ', name: '', nameShort: ' ', suit: ' ', value: ' ', valueInt: 0};
+var author$project$Main$Model = F2(
+	function (nhits, cards) {
+		return {cards: cards, nhits: nhits};
+	});
+var author$project$Main$blankCard = {cardType: ' ', desc: ' A description of the card', meaningRev: ' Your card\'s meaning here', meaningUp: ' ', name: ' Card Name', nameShort: ' ', suit: ' ', value: ' ', valueInt: 0};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
@@ -4970,13 +4974,69 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 	});
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var author$project$Main$init = _Utils_Tuple2(author$project$Main$blankCard, elm$core$Platform$Cmd$none);
+var author$project$Main$init = _Utils_Tuple2(
+	A2(
+		author$project$Main$Model,
+		0,
+		_List_fromArray(
+			[author$project$Main$blankCard])),
+	elm$core$Platform$Cmd$none);
 var author$project$Main$DataRecieved = function (a) {
 	return {$: 'DataRecieved', a: a};
 };
 var elm$json$Json$Decode$map2 = _Json_map2;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = elm$json$Json$Decode$map2(elm$core$Basics$apR);
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$decodeValue = _Json_run;
+var elm$json$Json$Decode$fail = _Json_fail;
+var elm$json$Json$Decode$null = _Json_decodeNull;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var elm$json$Json$Decode$value = _Json_decodeValue;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
+	function (pathDecoder, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						decoder,
+						elm$json$Json$Decode$null(fallback)
+					]));
+		};
+		var handleResult = function (input) {
+			var _n0 = A2(elm$json$Json$Decode$decodeValue, pathDecoder, input);
+			if (_n0.$ === 'Ok') {
+				var rawValue = _n0.a;
+				var _n1 = A2(
+					elm$json$Json$Decode$decodeValue,
+					nullOr(valDecoder),
+					rawValue);
+				if (_n1.$ === 'Ok') {
+					var finalResult = _n1.a;
+					return elm$json$Json$Decode$succeed(finalResult);
+				} else {
+					var finalErr = _n1.a;
+					return elm$json$Json$Decode$fail(
+						elm$json$Json$Decode$errorToString(finalErr));
+				}
+			} else {
+				return elm$json$Json$Decode$succeed(fallback);
+			}
+		};
+		return A2(elm$json$Json$Decode$andThen, handleResult, elm$json$Json$Decode$value);
+	});
 var elm$json$Json$Decode$field = _Json_decodeField;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional = F4(
+	function (key, valDecoder, fallback, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
+				A2(elm$json$Json$Decode$field, key, elm$json$Json$Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	function (key, valDecoder, decoder) {
 		return A2(
@@ -4990,45 +5050,66 @@ var author$project$Main$Card = F9(
 	});
 var elm$json$Json$Decode$int = _Json_decodeInt;
 var elm$json$Json$Decode$string = _Json_decodeString;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var author$project$Main$decodeCard = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+var author$project$Main$decodeCard = A4(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 	'desc',
 	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'desc not found',
+	A4(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 		'meaning_rev',
 		elm$json$Json$Decode$string,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		' ',
+		A4(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 			'meaning_up',
 			elm$json$Json$Decode$string,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			' ',
+			A4(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 				'type',
 				elm$json$Json$Decode$string,
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				' ',
+				A4(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 					'suit',
 					elm$json$Json$Decode$string,
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					' ',
+					A4(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 						'value_int',
 						elm$json$Json$Decode$int,
-						A3(
-							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						9,
+						A4(
+							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 							'value',
 							elm$json$Json$Decode$string,
-							A3(
-								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+							' ',
+							A4(
+								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 								'name_short',
 								elm$json$Json$Decode$string,
-								A3(
-									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+								' ',
+								A4(
+									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
 									'name',
 									elm$json$Json$Decode$string,
+									'Name not found',
 									elm$json$Json$Decode$succeed(author$project$Main$Card))))))))));
-var author$project$Main$url = 'http://localhost:3000/data';
+var elm$json$Json$Decode$list = _Json_decodeList;
+var author$project$Main$decodeCardList = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'cards',
+	elm$json$Json$Decode$list(author$project$Main$decodeCard),
+	A4(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+		'nhits',
+		elm$json$Json$Decode$int,
+		20,
+		elm$json$Json$Decode$succeed(author$project$Main$Model)));
+var author$project$Main$corsAnywhere = 'https://cors-anywhere.herokuapp.com/';
+var author$project$Main$randomCardUrl = 'https://rws-cards-api.herokuapp.com/api/v1/cards/random';
+var author$project$Main$url = _Utils_ap(author$project$Main$corsAnywhere, author$project$Main$randomCardUrl);
 var elm$http$Http$Internal$EmptyBody = {$: 'EmptyBody'};
 var elm$http$Http$emptyBody = elm$http$Http$Internal$EmptyBody;
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
@@ -5784,7 +5865,15 @@ var author$project$Main$update = F2(
 	function (msg, model) {
 		if (msg.$ === 'RequestCard') {
 			return _Utils_Tuple2(
-				model,
+				A2(
+					author$project$Main$Model,
+					7,
+					_List_fromArray(
+						[
+							_Utils_update(
+							author$project$Main$blankCard,
+							{name: 'card requested'})
+						])),
 				A2(
 					elm$http$Http$send,
 					author$project$Main$DataRecieved,
@@ -5792,15 +5881,31 @@ var author$project$Main$update = F2(
 		} else {
 			if (msg.a.$ === 'Ok') {
 				var cardJson = msg.a.a;
-				var _n1 = A2(elm$json$Json$Decode$decodeString, author$project$Main$decodeCard, cardJson);
+				var _n1 = A2(elm$json$Json$Decode$decodeString, author$project$Main$decodeCardList, cardJson);
 				if (_n1.$ === 'Ok') {
-					var card = _n1.a;
-					return _Utils_Tuple2(card, elm$core$Platform$Cmd$none);
+					var cards = _n1.a;
+					return _Utils_Tuple2(cards, elm$core$Platform$Cmd$none);
 				} else {
-					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+					return _Utils_Tuple2(
+						A2(
+							author$project$Main$Model,
+							model.nhits,
+							_List_fromArray(
+								[
+									_Utils_update(
+									author$project$Main$blankCard,
+									{name: 'err parsing: ' + cardJson})
+								])),
+						elm$core$Platform$Cmd$none);
 				}
 			} else {
-				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				return _Utils_Tuple2(
+					A2(
+						author$project$Main$Model,
+						3,
+						_List_fromArray(
+							[author$project$Main$blankCard])),
+					elm$core$Platform$Cmd$none);
 			}
 		}
 	});
@@ -5818,12 +5923,50 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$div = _VirtualDom_node('div');
-var elm$html$Html$h1 = _VirtualDom_node('h1');
+var elm$html$Html$h3 = _VirtualDom_node('h3');
+var elm$html$Html$h4 = _VirtualDom_node('h4');
 var elm$html$Html$p = _VirtualDom_node('p');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var author$project$Main$cardList = function (card) {
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$h3,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(card.name)
+					])),
+				A2(
+				elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(card.desc)
+					])),
+				A2(
+				elm$html$Html$h4,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Meaning')
+					])),
+				A2(
+				elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(card.meaningUp)
+					]))
+			]));
+};
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5867,6 +6010,10 @@ var author$project$Main$view = function (model) {
 						elm$html$Html$text('Elm Tarot App')
 					])),
 				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				A2(elm$core$List$map, author$project$Main$cardList, model.cards)),
+				A2(
 				elm$html$Html$button,
 				_List_fromArray(
 					[
@@ -5876,27 +6023,6 @@ var author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						elm$html$Html$text('Draw a Card!')
-					])),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(model.name)
-					])),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(model.desc)
-					])),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(model.meaningUp)
 					]))
 			]));
 };
